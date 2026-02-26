@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SoY Courses Site</title>
+  <link rel="icon" type="image/jpg" href="exp5_class.jpg" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&family=Unbounded:wght@700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --blue: #1a56d6;
+      --blue-dark: #0d3aaa;
+      --blue-light: #3b79f5;
+      --yellow: #ffe600;
+      --red: #e8192c;
+      --white: #ffffff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Nunito', sans-serif; background: var(--blue); color: var(--white); overflow-x: hidden; }
+
+    /* BUBBLES */
+    .bubbles-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bubble { position: absolute; bottom: -120px; border-radius: 50%; background: rgba(255,255,255,0.08); animation: floatUp linear infinite; }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) scale(1); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+    }
+
+    /* HEADER */
+    header {
+      position: relative; z-index: 10;
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 60%, var(--blue-light) 100%);
+      padding: 18px 40px; display: flex; align-items: center; gap: 20px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+    header img.logo { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--yellow); box-shadow: 0 0 18px rgba(255,230,0,0.5); flex-shrink: 0; }
+    .header-text h1 { font-family: 'Unbounded', sans-serif; font-size: clamp(1rem, 2.5vw, 1.55rem); color: var(--yellow); text-shadow: 2px 2px 0 var(--blue-dark), 0 0 20px rgba(255,230,0,0.4); line-height: 1.2; }
+    .header-text span { font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 600; letter-spacing: 0.05em; }
+
+    /* HERO */
+    .hero { position: relative; z-index: 5; text-align: center; padding: 80px 20px 60px; }
+    .hero-badge { display: inline-block; background: var(--red); color: white; font-family: 'Unbounded', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 6px 18px; border-radius: 50px; margin-bottom: 20px; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+    .hero h2 { font-family: 'Unbounded', sans-serif; font-size: clamp(1.8rem, 5vw, 3.2rem); line-height: 1.15; color: var(--white); text-shadow: 0 2px 20px rgba(0,0,0,0.3); margin-bottom: 16px; }
+    .hero h2 span { color: var(--yellow); }
+    .hero p { font-size: 1.1rem; color: rgba(255,255,255,0.85); max-width: 560px; margin: 0 auto 36px; line-height: 1.7; }
+    .hero-cta { display: inline-block; background: var(--yellow); color: var(--blue-dark); font-family: 'Unbounded', sans-serif; font-size: 0.9rem; font-weight: 700; padding: 16px 42px; border-radius: 50px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 6px 24px rgba(255,230,0,0.4); }
+    .hero-cta:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 32px rgba(255,230,0,0.5); }
+
+    /* COURSES */
+    .courses-section { position: relative; z-index: 5; padding: 20px 30px 80px; }
+    .section-title { text-align: center; font-family: 'Unbounded', sans-serif; font-size: clamp(1.3rem, 3vw, 2rem); color: var(--yellow); margin-bottom: 50px; position: relative; }
+    .section-title::after { content: ''; display: block; width: 80px; height: 4px; background: var(--red); border-radius: 2px; margin: 12px auto 0; }
+
+    /* GRID 3-2-3 */
+    .cards-grid { display: flex; flex-direction: column; gap: 30px; max-width: 1200px; margin: 0 auto; align-items: center; }
+    .cards-row { display: flex; gap: 30px; justify-content: center; width: 100%; }
+    .cards-row .card { flex: 0 1 340px; max-width: 360px; min-width: 260px; }
+    @media (max-width: 900px) { .cards-row { flex-wrap: wrap; } }
+    @media (max-width: 600px) {
+      header { padding: 14px 18px; }
+      .hero { padding: 50px 16px 40px; }
+      .courses-section { padding: 10px 14px 60px; }
+      .cards-row { flex-direction: column; align-items: center; }
+      .cards-row .card { max-width: 100%; width: 100%; flex: none; }
+      .modal-body { padding: 20px 18px 24px; }
+    }
+
+    /* CARD */
+    .card {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 22px; overflow: hidden; cursor: pointer;
+      transition: transform 0.3s cubic-bezier(.22,1,.36,1), box-shadow 0.3s, border-color 0.3s;
+      backdrop-filter: blur(10px); opacity: 0; transform: translateY(40px);
+    }
+    .card.visible { animation: slideIn 0.6s cubic-bezier(.22,1,.36,1) forwards; }
+    @keyframes slideIn { to { opacity: 1; transform: translateY(0); } }
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 0 30px 8px rgba(255,230,0,0.45), 0 20px 50px rgba(0,0,0,0.35);
+      border-color: var(--yellow);
+    }
+    .card-img-wrap { overflow: hidden; position: relative; }
+    .card-img-wrap::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, rgba(13,26,85,0.6) 100%); }
+    .card-img { width: 100%; height: 190px; object-fit: cover; display: block; transition: transform 0.4s; }
+    .card:hover .card-img { transform: scale(1.05); }
+    .card-body { padding: 20px 22px 24px; }
+    .card-title { font-family: 'Unbounded', sans-serif; font-size: 0.95rem; color: var(--white); margin-bottom: 10px; line-height: 1.3; }
+    .card-desc { font-size: 0.88rem; color: rgba(255,255,255,0.75); line-height: 1.6; margin-bottom: 18px; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .card-price { font-family: 'Unbounded', sans-serif; font-size: 1.1rem; color: var(--yellow); font-weight: 900; }
+    .btn-buy { background: var(--red); color: white; border: none; padding: 10px 22px; border-radius: 50px; font-family: 'Unbounded', sans-serif; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 14px rgba(232,25,44,0.4); }
+    .btn-buy:hover { background: #c00020; transform: scale(1.05); box-shadow: 0 8px 20px rgba(232,25,44,0.5); }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(10,20,70,0.75); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal { background: linear-gradient(135deg, #0d3aaa 0%, #1a56d6 100%); border: 2px solid rgba(255,230,0,0.4); border-radius: 28px; max-width: 580px; width: 100%; overflow: hidden; transform: scale(0.88) translateY(30px); transition: transform 0.35s cubic-bezier(.22,1,.36,1); box-shadow: 0 30px 80px rgba(0,0,0,0.5); position: relative; }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+    .modal-close { position: absolute; top: 16px; right: 20px; background: rgba(255,255,255,0.15); border: none; color: white; font-size: 1.3rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; z-index: 5; }
+    .modal-close:hover { background: var(--red); }
+    .modal-img { width: 100%; height: 220px; object-fit: cover; }
+    .modal-body { padding: 28px 32px 32px; }
+    .modal-title { font-family: 'Unbounded', sans-serif; font-size: 1.2rem; color: var(--yellow); margin-bottom: 14px; line-height: 1.3; }
+    .modal-full-desc { font-size: 0.95rem; color: rgba(255,255,255,0.88); line-height: 1.75; margin-bottom: 24px; }
+    .modal-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .modal-price { font-family: 'Unbounded', sans-serif; font-size: 1.5rem; color: var(--yellow); }
+    .btn-modal-buy { background: var(--yellow); color: var(--blue-dark); border: none; padding: 14px 36px; border-radius: 50px; font-family: 'Unbounded', sans-serif; font-size: 0.85rem; font-weight: 900; cursor: pointer; text-decoration: none; display: inline-block; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 6px 20px rgba(255,230,0,0.35); }
+    .btn-modal-buy:hover { transform: scale(1.04); box-shadow: 0 10px 28px rgba(255,230,0,0.5); }
+
+    /* FOOTER */
+    footer { position: relative; z-index: 5; text-align: center; padding: 32px 20px; background: rgba(0,0,0,0.2); font-size: 0.85rem; color: rgba(255,255,255,0.5); border-top: 1px solid rgba(255,255,255,0.08); }
+    footer a { color: var(--yellow); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="bubbles-bg" id="bubblesContainer"></div>
+
+<header>
+  <img class="logo" src="exp5_class.jpg" alt="SoY Logo" />
+  <div class="header-text">
+    <h1>Программы и курсы<br>образовательного проекта &#171;СОЯ&#187;</h1>
+    <span>Учим английский легко, весело и эффективно!</span>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-badge">&#10022; Онлайн-курсы английского языка</div>
+  <h2>Откройте мир <span>английского</span><br>для себя и своего ребёнка</h2>
+  <p>Профессиональные курсы для любого возраста и уровня. Живые уроки, интересные материалы, результат с первых занятий.</p>
+  <a href="#courses" class="hero-cta">Смотреть &#x2193;</a>
+</section>
+
+<section class="courses-section" id="courses">
+  <h2 class="section-title">Наши программы и курсы</h2>
+  <div class="cards-grid" id="cardsGrid"></div>
+</section>
+
+<footer>
+  <p>&#169; 2024 School of Yours. Все права защищены.</p>
+  <p style="margin-top:8px;color:rgba(255,255,255,0.6);">Вопросы по курсам:</p>
+  <div class="footer-contacts">
+    <a href="mailto:nataly_ed_teach@vk.com">
+      &#9993; nataly_ed_teach@vk.com
+    </a>
+    <span class="divider">|</span>
+    <a href="https://vk.com/soy_project_principal" target="_blank">
+      &#128172; написать учителю ВКонтакте
+    </a>
+  </div>
+  <p style="margin-top:14px">
+    <a href="https://disk.yandex.ru/i/FS22sHAP_Fzkkg" target="_blank"
+       style="color:rgba(255,255,255,0.4);font-size:0.78rem;text-decoration:underline;text-underline-offset:3px;"
+       onmouseover="this.style.color='#ffe600'"
+       onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+      Оферта на продажу образовательных курсов
+    </a>
+  </p>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">&#x2715;</button>
+    <img class="modal-img" id="modalImg" src="" alt="" />
+    <div class="modal-body">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-full-desc" id="modalDesc"></div>
+      <div class="modal-footer">
+        <div class="modal-price" id="modalPrice"></div>
+        <a class="btn-modal-buy" id="modalBuyBtn" href="#REPLACE_PAYMENT_LINK_HERE" target="_blank">Купить курс</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var courses = [
+  { id:1, title:"Английский для малышей", shortDesc:"Первые шаги в мире английского через игры, песенки и сказки для детей 3-6 лет.", fullDesc:"Увлекательный курс для самых маленьких! Ваш ребёнок познакомится с английским языком через игры, яркие картинки, песенки и интерактивные задания. Занятия проходят в игровой форме и развивают слух, память и любопытство к иностранным языкам. Идеально для детей 3-6 лет без предварительной подготовки.", price:"1 500 руб/мес", img:"course1.jpg", buyLink:"https://vk.com/soy_project" },
+  { id:2, title:"Английский для школьников", shortDesc:"Углубленное изучение английского языка по европейской системе обучения детей 7-14 лет.", fullDesc:"Помогаем школьникам получать качественные знания и чувствовать уверенность на уроках английского в школе. Разбираем грамматику понятно и структурировано, тренируем чтение, аудирование, письмо и разговор. Подходит для учеников 1-9 классов.", price:"2 000 руб/мес", img:"course2.jpg", buyLink:"https://vk.com/soy_project" },
+  { id:3, title:"Английский для студентов", shortDesc:"Академический и разговорный английский для успешной учёбы и карьеры. Уровни A2-C1.", fullDesc:"Курс для студентов, которым нужен английский для учёбы, стажировок или работы. Охватывает академическое письмо, профессиональную лексику, презентации и переговоры. Уделяем особое внимание разговорной практике и реальным ситуациям общения. Уровни от A2 до C1.", price:"2 500 руб/мес", img:"course3.jpg", buyLink:"https://vk.com/soy_project" },
+  { id:4, title:"Экспресс-курс по подготовке к английскому в школе", shortDesc:"Интенсивная двухмесячная подготовка для будущих 1-2 классников к встрече с английским языком в школе.", fullDesc:"Занятия проходят живо, ярко, активно, ваш ребёнок точно заинтересуется в продолжении изучения данного иностранного языка. Мы будем изучать алфавит, считать, учиться читать и писать, слушать и говорить элементарные фразы на английском языке с помощью наглядных, творческих, интерактивных и игровых приёмов обучения.Результат виден уже через 2 недели.", price:"5 900 руб (курс)", img:"course4.jpg", buyLink:"https://vk.com/soy_project" },
+  { id:5, title:"Английский для путешествий", shortDesc:"Практичный разговорный курс: отель, аэропорт, рестораны, шопинг и общение с местными.", fullDesc:"Хотите путешествовать без языкового барьера? Этот курс научит вас уверенно общаться в реальных ситуациях: бронирование отеля, ориентирование в городе, заказ еды, покупки, разговор с местными жителями и экстренные ситуации. Никакой лишней теории — только живой, полезный английский!", price:"3 200 руб/мес", img:"course5.jpg", buyLink:"https://vk.com/soy_project" },
+  { id:6, title:"Курс подготовки к ОГЭ", shortDesc:"Целевая подготовка к ОГЭ по английскому: все разделы экзамена, пробные тесты, разбор ошибок.", fullDesc:"Курс охватывает все четыре раздела ОГЭ: аудирование, чтение, грамматику и лексику, а также письмо и устную часть. Разбираем типичные ошибки, отрабатываем формат экзамена на пробных тестах и строим уверенность перед экзаменом. Подходит для учеников 8-9 классов. Результат — сдать ОГЭ на хорошо или отлично.", price:"3 000 руб/мес", img:"course6.jpg", buyLink:"https://vk.com/soy_project" },
+  { id:7, title:"Курс подготовки к ЕГЭ", shortDesc:"Системная подготовка ко всем заданиям ЕГЭ: от грамматики до эссе и устной части.", fullDesc:"Подготовим вас ко всем разделам ЕГЭ по английскому языку: аудирование, чтение, грамматика и лексика, письменная речь (личное письмо и эссе), а также устная часть. Практикуем тестовые задания в реальном формате, изучаем критерии оценивания и учимся избегать типичных ошибок. Для учеников 10-11 классов. Цель — высокий балл на ЕГЭ.", price:"3 000 руб/мес", img:"course7.jpg", buyLink:"https://vk.com/soy_project" },
+  { id:8, title:"Курс подготовки к Cambridge Exams", shortDesc:"Подготовка к международным экзаменам Cambridge: KET, PET, FCE, CAE. Сертификат на всю жизнь.", fullDesc:"Готовим к международным экзаменам Cambridge English: KET (A2), PET (B1), FCE (B2), CAE (C1). Курс включает все пять компонентов: чтение, письмо, аудирование, говорение и использование английского. Отрабатываем экзаменационные стратегии, изучаем формат заданий и проводим пробные тесты. Сертификат Cambridge признаётся по всему миру и действует бессрочно.", price:"3 000 руб/мес", img:"course8.jpg", buyLink:"https://vk.com/soy_project" }
+];
+
+var grid = document.getElementById('cardsGrid');
+
+function makeCard(c, delay) {
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.style.animationDelay = delay + 's';
+  card.innerHTML =
+    '<div class="card-img-wrap"><img class="card-img" src="' + c.img + '" alt="' + c.title + '" /></div>' +
+    '<div class="card-body">' +
+      '<div class="card-title">' + c.title + '</div>' +
+      '<div class="card-desc">' + c.shortDesc + '</div>' +
+      '<div class="card-footer">' +
+        '<div class="card-price">' + c.price + '</div>' +
+        '<button class="btn-buy" data-id="' + c.id + '">Купить</button>' +
+      '</div>' +
+    '</div>';
+  return card;
+}
+
+var row1 = document.createElement('div'); row1.className = 'cards-row';
+var row2 = document.createElement('div'); row2.className = 'cards-row';
+var row3 = document.createElement('div'); row3.className = 'cards-row';
+[0,1,2].forEach(function(i){ row1.appendChild(makeCard(courses[i], i*0.12)); });
+[3,4].forEach(function(i){ row2.appendChild(makeCard(courses[i], i*0.12)); });
+[5,6,7].forEach(function(i){ row3.appendChild(makeCard(courses[i], i*0.12)); });
+grid.appendChild(row1);
+grid.appendChild(row2);
+grid.appendChild(row3);
+
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.card').forEach(function(c) { obs.observe(c); });
+
+var overlay     = document.getElementById('modalOverlay');
+var modalImg    = document.getElementById('modalImg');
+var modalTitle  = document.getElementById('modalTitle');
+var modalDesc   = document.getElementById('modalDesc');
+var modalPrice  = document.getElementById('modalPrice');
+var modalBuyBtn = document.getElementById('modalBuyBtn');
+
+function openModal(id) {
+  var c = null;
+  for (var i = 0; i < courses.length; i++) { if (courses[i].id === id) { c = courses[i]; break; } }
+  if (!c) return;
+  modalImg.src = c.img; modalImg.alt = c.title;
+  modalTitle.textContent = c.title;
+  modalDesc.textContent  = c.fullDesc;
+  modalPrice.textContent = c.price;
+  modalBuyBtn.href = c.buyLink;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+grid.addEventListener('click', function(e) {
+  var btn = e.target.closest('.btn-buy');
+  if (btn) { openModal(parseInt(btn.getAttribute('data-id'), 10)); return; }
+  var card = e.target.closest('.card');
+  if (card) { var b = card.querySelector('.btn-buy'); if (b) openModal(parseInt(b.getAttribute('data-id'), 10)); }
+});
+
+var bc = document.getElementById('bubblesContainer');
+var sz = [14,20,30,45,60,80,100,50];
+for (var n = 0; n < 22; n++) {
+  var b = document.createElement('div');
+  b.className = 'bubble';
+  var s = sz[Math.floor(Math.random() * sz.length)];
+  b.style.width  = s + 'px';
+  b.style.height = s + 'px';
+  b.style.left   = (Math.random() * 100) + '%';
+  b.style.animationDuration = (8 + Math.random() * 14) + 's';
+  b.style.animationDelay    = (Math.random() * 12) + 's';
+  bc.appendChild(b);
+}
+</script>
+</body>
+</html>
